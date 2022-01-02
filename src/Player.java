@@ -40,7 +40,7 @@ public class Player {
 
     private String getBagInfo() {
         String bagInfo= "";
-        if (bag.isEmpty()) {
+        if (!bag.isEmpty()) {
             bagInfo= "i have a bag which contains:";
             for (Item item :bag) {
                 bagInfo += "\n   " + item.toString();
@@ -54,6 +54,13 @@ public class Player {
         info+= " and i am " + currentRoom.getLongDescription();
         info+= "\n" + getBagInfo();
         return info;
+    }
+    public String playerinfo(){
+        String info = "My name is " + name + " and i can carry a maximum of " + maxWeightInBag + " kg.";
+
+        info+= "\n" + getBagInfo() ;
+        return info;
+
     }
 
     public boolean go(String direction) {
@@ -100,4 +107,15 @@ public class Player {
         }
         return null;
     }
+    public boolean eat(String itemName){
+        if (hasItem(itemName) && itemName.equals("cookie")){
+            Item food =getItem(itemName);
+            bag.remove(food);
+            maxWeightInBag+=5;
+            return true;
+        }
+        return false;
+    }
+
+
 }

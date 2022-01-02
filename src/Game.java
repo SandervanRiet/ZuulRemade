@@ -1,3 +1,6 @@
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Random;
 import java.util.Stack;
 
 /**
@@ -24,6 +27,7 @@ public class Game
     private Player player;
     private Room previousRoom;
     private Stack<Room> roomStack;
+    private Random random=new Random();
 
 
         
@@ -37,6 +41,7 @@ public class Game
         parser = new Parser();
 
 
+
     }
 
     /**
@@ -45,7 +50,7 @@ public class Game
     private void createRooms()
     {
         Room ocean,sluice, canal, portArthur, beach,island,buoy,triangleOfBermuda,lighthouse,portNapoleon;
-        Item promoboard, ashtray;
+        Item promoboard, ashtray, cookie;
       
         // create the rooms
         ocean = new Room("in the middle of the ocean");
@@ -63,10 +68,15 @@ public class Game
         // create the items
         promoboard = new Item("promoboard","University promoboard", 2.3);
         ashtray = new Item("ashtray","big yellow ashtray",4.6);
+        cookie = new Item("cookie","delicious cookie",0.5);
+
 
         // add items to rooms
-        ocean.addItem(promoboard);
+        island.addItem(promoboard);
         ocean.addItem(ashtray);
+        ocean.addItem(cookie);
+
+
 
         // initialise room exits
         ocean.setExit("port",buoy);
@@ -88,7 +98,19 @@ public class Game
         lighthouse.setExit("starboard", buoy);
         lighthouse.setExit("forwards", portNapoleon);
         portNapoleon.setExit("backwards",lighthouse);
-        triangleOfBermuda.setExit("forwards",buoy);
+        int number=random.nextInt(9);
+        switch (number) {
+            case 0 -> triangleOfBermuda.setExit("forwards", buoy);
+            case 1 -> triangleOfBermuda.setExit("forwards", ocean);
+            case 2 -> triangleOfBermuda.setExit("forwards", island);
+            case 3 -> triangleOfBermuda.setExit("forwards", portNapoleon);
+            case 4 -> triangleOfBermuda.setExit("forwards", portArthur);
+            case 5 -> triangleOfBermuda.setExit("forwards", canal);
+            case 6 -> triangleOfBermuda.setExit("forwards", sluice);
+            case 7 -> triangleOfBermuda.setExit("forwards", lighthouse);
+            case 8 -> triangleOfBermuda.setExit("forwards", beach);
+        }
+
 
         player.setCurrentRoom(ocean);  // start game ocean
 
@@ -131,6 +153,11 @@ public class Game
         System.out.println();
     }
 
+
+
+
+
+
     /**
      * Given a command, process (that is: execute) the command.
      * @param command The command to be processed.
@@ -154,13 +181,13 @@ public class Game
                 goRoom(command);
                 break;
             case LOOK:
-                printLocationInfo();
+                look(command);
                 break;
             case DROP:
                 drop(command);
                 break;
             case EAT:
-                eat();
+                eat(command);
                 break;
             case QUIT:
                 wantToQuit=quit(command);
@@ -210,6 +237,7 @@ public class Game
         String direction = command.getSecondWord();
         Room nextRoom = player.getCurrentRoom().getExit(direction);
         previousRoom = player.getCurrentRoom();
+       // roomStack.push(player.getCurrentRoom());
 
 
         // Try to leave current room.
@@ -220,6 +248,22 @@ public class Game
             player.setCurrentRoom(nextRoom);
             printLocationInfo();
         }
+    }
+
+    private void look(Command command)
+    {
+        String commandWordSecond= command.getSecondWord();
+        if(!command.hasSecondWord()){
+            printLocationInfo();
+        }
+        else if (commandWordSecond.equals("room")){
+            System.out.println(player.getCurrentRoom().getLongDescription());
+        }
+        else if (commandWordSecond.equals("player")){
+            System.out.println(player.playerinfo());
+        }
+
+
     }
 
     private void back(Command command)
@@ -241,6 +285,7 @@ public class Game
             return;
 
         }
+
         player.setCurrentRoom(previousRoom);
 
 
@@ -275,13 +320,13 @@ public class Game
 
         }
 
-        player.setCurrentRoom(previousRoom);
+
 
         player.setCurrentRoom(roomStack.pop());
 
         System.out.println("You have gone stackBack:");
 
-        System.out.println(currentRoom.getLongDescription());
+        printLocationInfo();
 
     }
 
@@ -294,6 +339,7 @@ public class Game
         String itemName = command.getSecondWord();
         if (player.take(itemName)) {
             printLocationInfo();
+
         } else {
             System.out.println("There is no item here with the name " + itemName);
         }
@@ -329,9 +375,21 @@ public class Game
         }
     }
 
-    private void eat() {
-        System.out.println("I have eaten and I am not hungry anymore");
-        System.out.println();
+    private void eat(Command command) {
+        if (!command.hasSecondWord()) {
+            // if there is no second word, we don't know what to take...
+            System.out.println("eat what?");
+            return;
+        }
+        String itemName= command.getSecondWord();
+        if (player.eat(itemName)){
+            System.out.println("You ate a magic cookie and can now carry 5 kg more.");
+            printLocationInfo();
+        } else {
+            System.out.println("you can't eat this");
+        }
+
+
     }
 
     public static void main(String[] args) {

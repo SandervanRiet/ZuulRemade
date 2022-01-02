@@ -45,7 +45,7 @@ public class Room
     }
 
     public boolean hasItem(String name){
-        for(Item items: items){
+        for(Item item: items){
            if (item.getName().equals(name))
             return true;
         } return false;
@@ -53,7 +53,7 @@ public class Room
     }
 
     public Item getItem(String name){
-        for(Item items: items){
+        for(Item item: items){
             if (item.getName().equals(name)) return item;
         }
         return null;
@@ -102,4 +102,6 @@ public class Room
 
         return info;
     }
+
+
 }
